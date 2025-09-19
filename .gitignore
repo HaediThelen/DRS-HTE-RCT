@@ -1,6 +1,18 @@
+# Ignore results files
+
 # History files
 .Rhistory
 .Rapp.history
+
+# Ignore temporary files
+temp/
+*.tmp
+
+# Ignore macOS .DS_Store files
+
+.DS_Store
+
+
 
 # Session Data files
 .RData
@@ -20,6 +32,9 @@
 
 # RStudio files
 .Rproj.user/
+*.Rproj
+.Rproj
+.Ruserdata
 
 # produced vignettes
 vignettes/*.html
