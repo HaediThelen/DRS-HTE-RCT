@@ -1,4 +1,6 @@
 # Ignore results files
+results/*
+!results/README.md
 
 # History files
 .Rhistory
