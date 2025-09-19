@@ -11,9 +11,9 @@ setwd("/Users/haedi/Library/CloudStorage/Box-Box/Repos/DRS-HTE-RCT")
 
 
 # Read in OPB REsults
-a_smplsz500 <- read.csv("./results/alt_ss_proportion/a_smplsz500_OPB_results.csv", row.names = 1)
-b_smplsz1000 <- read.csv("./results/alt_ss_proportion/b_smplsz1000_OPB_results.csv", row.names = 1)
-base_case <- read.csv("./results/alt_ss_proportion/base_case_OPB_results.csv", row.names = 1)
+a_smplsz500 <- read.csv("./results/alt_ss_proportion/a_smplsz500/a_smplsz500_OPB_results.csv", row.names = 1)
+b_smplsz1000 <- read.csv("./results/alt_ss_proportion/b_smplsz1000/b_smplsz1000_OPB_results.csv", row.names = 1)
+base_case <- read.csv("./results/alt_ss_proportion/base_case/base_case_OPB_results.csv", row.names = 1)
 
 # Add a column to each identifying the source
 a_smplsz500 <- a_smplsz500 %>%
@@ -81,9 +81,9 @@ OPB
 
 
 # Read in OPB REsults
-a_smplsz500_OMSE <- read.csv("./results/alt_ss_proportion/a_smplsz500_OMSE_results.csv", row.names = 1)
-b_smplsz1000_OMSE <- read.csv("./results/alt_ss_proportion/b_smplsz1000_OMSE_results.csv", row.names = 1)
-base_case_OMSE <- read.csv("./results/alt_ss_proportion/base_case_OMSE_results.csv", row.names = 1)
+a_smplsz500_OMSE <- read.csv("./results/alt_ss_proportion/a_smplsz500/a_smplsz500_OMSE_results.csv", row.names = 1)
+b_smplsz1000_OMSE <- read.csv("./results/alt_ss_proportion/b_smplsz1000/b_smplsz1000_OMSE_results.csv", row.names = 1)
+base_case_OMSE <- read.csv("./results/alt_ss_proportion/base_case/base_case_OMSE_results.csv", row.names = 1)
 
 # Add a column to each identifying the source
 a_smplsz500_OMSE <- a_smplsz500_OMSE %>%
@@ -157,7 +157,7 @@ OPB_plot_no_x <- OPB + theme(
 composite_OPB_MSE_plot <-
   ggarrange(OPB_plot_no_x, OMSE,
             ncol = 1, nrow = 2,
-            labels = c("A", "B"),
+            labels = c("A)", "B)"),
             font.label = list(size = 9),
             common.legend = TRUE, legend = "bottom")
 
