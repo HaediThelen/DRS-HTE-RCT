@@ -34,10 +34,14 @@ source("./functions/results_plots.R")
 # "j_ratio_4to1"   "k_auc_0.70"    "l_auc_0.75"     "m_auc_0.80"     "n_auc_0.85" 
 
 
-current_trial <- all_trial_settings[all_trial_settings$trial_setting == "base_case",]
+current_trial <- all_trial_settings[all_trial_settings$trial_setting == "n_auc_0.85",]
 
 trial_setting <- current_trial$trial_setting
 file_path <- current_trial$file_path
+if (!dir.exists(file_path)) { #ensure results folder exists locally
+  print("The directory will be created.")
+  dir.create(file_path, recursive = TRUE)
+}
 cov_ORs_cx <- unlist(current_trial$cov_ORs_cx)
 cov_ORs_tx <- unlist(current_trial$cov_ORs_tx)
 n <- current_trial$n
@@ -216,7 +220,7 @@ risk_dist <- function(data, risk_col, obj_strata_cuts, method) {
 risk_dist_TxSc1 <- risk_dist(data_TxSc1, "pY0", obj_strata_cuts, "TxSc1")
 risk_dist_TxSc1 # check other data sets as needed
 # Save as PDF 
-#ggsave(paste0(file_path, "/", trial_setting, "_risk_dist_TxSc1.pdf"), plot = risk_dist_TxSc1, device = "pdf", width = 7, height = 5, units = "in")
+ggsave(paste0(file_path, "/", trial_setting, "_risk_dist_TxSc1.pdf"), plot = risk_dist_TxSc1, device = "pdf", width = 7, height = 5, units = "in")
 
 # Average outcomes in sample, EPV, and AUC
 auc<-suppressMessages(auc(data_TxSc1$Y, data_TxSc1$pY0)[1])
@@ -244,7 +248,7 @@ results <- replicate(1000, count_outcomes(data_TxSc1))
 averages <- as.data.frame(t(rowMeans(results)))
 averages$AUC <- auc
 averages
-#write.csv(averages, paste0(file_path, "/", trial_setting, "_sample_outcomes.csv"))
+write.csv(averages, paste0(file_path, "/", trial_setting, "_sample_outcomes.csv"))
 
 # Bar chart of patients in each strata, color coded by treated and control
 dist_GT_strata <- data_TxSc1 %>%
@@ -261,7 +265,7 @@ dist_GT_strata <- data_TxSc1 %>%
 dist_GT_strata
 
 # Save as png
-#ggsave(paste0(file_path, "/", trial_setting, "_dist_GT_strata.png"), plot = dist_GT_strata, device = "png", width = 6, height = 4, units = "in", dpi = 600)
+ggsave(paste0(file_path, "/", trial_setting, "_dist_GT_strata.png"), plot = dist_GT_strata, device = "png", width = 6, height = 4, units = "in", dpi = 600)
 
 
 # Summary Table
@@ -286,13 +290,7 @@ formatted_table_short <- c_sum_table_short %>%
 
 formatted_table_short
 # Save summary table
-#write.csv(c_sum_table_short, paste0(file_path, "/", trial_setting, "_summary_table.csv"))
-
-# Plot the raw results
-#plot_rd(TxSc1, "OR: 1, HTE: None")  
-#plot_rd(TxSc2, "OR: 0.8, HTE: None") 
-#plot_rd(TxSc3, "OR: 0.5, HTE: None")  
-#plot_rd(TxSc4, "OR: 0.5, HTE:yes")  
+write.csv(c_sum_table_short, paste0(file_path, "/", trial_setting, "_summary_table.csv"))
 
 # Plot Bias
 # Data Prep: calculate bias
@@ -310,8 +308,8 @@ OPB_results <- apply_percent_bias_function(sim_results, methods, "True_risk_stra
 OAB_results <- apply_OAB_function(sim_results, methods, "True_risk_strata")
 
 # Save summary results
-#write.csv(OAB_results, paste0(file_path, "/", trial_setting, "_OAB_results.csv"))
-#write.csv(OPB_results, paste0(file_path, "/", trial_setting, "_OPB_results.csv"))
+write.csv(OAB_results, paste0(file_path, "/", trial_setting, "_OAB_results.csv"))
+write.csv(OPB_results, paste0(file_path, "/", trial_setting, "_OPB_results.csv"))
 
 
 small_titles = c("No Treatment Effect", "Treatment Effect: OR = 0.8", "Treatment Effect: OR = 0.5", "Treatment Effect:\nOR = 0.8 + Covariate Interactions", "Treatment Effect:\nOR = 0.5 + Covariate Interactions")
@@ -320,7 +318,7 @@ point_bias_plot <- composite_pointplot_bias(c_rd_data_short, small_titles,
                                             OPB_results, OAB_results)
 point_bias_plot
 # Save point plot of bias
-#ggsave(paste0(file_path, "/", trial_setting, "_Point_Bias_Results.pdf"), plot = point_bias_plot, width = 6.5, height = 9.5, units = "in")
+ggsave(paste0(file_path, "/", trial_setting, "_Point_Bias_Results.pdf"), plot = point_bias_plot, width = 6.5, height = 9.5, units = "in")
 
 
 # Point Plot of risk difference
@@ -328,6 +326,6 @@ methods <- c("CO", "FS", "SS")
 point_rd_plot <- composite_pointplot_rd(sim_results, small_titles, overall_title = trial_setting, OPB_results, OAB_results)
 point_rd_plot
 # Save point Plot of risk difference
-#ggsave(paste0(file_path, "/", trial_setting, "_point_rd_plot.pdf"), plot = point_rd_plot, width = 6.5, height = 9.5, units = "in")
+ggsave(paste0(file_path, "/", trial_setting, "_point_rd_plot.pdf"), plot = point_rd_plot, width = 6.5, height = 9.5, units = "in")
 
 
