@@ -5,10 +5,11 @@ library(RColorBrewer)
 library(patchwork)
 library(ggpubr)
 
-# This script generate figure 3; Trends in bias as parameters vary in the small
+# This script generates figure 3; Trends in bias as parameters vary in the small
   # treatment effect with treatment-covariate interactions scenario. 
 
 # Results for each trial settings (base_case and a-m) must already be generated
+  # using main_analysis.R
 
 # Set working directory
 setwd("/Users/haedi/Library/CloudStorage/Box-Box/Repos/DRS-HTE-RCT")
