@@ -6,8 +6,8 @@ library(patchwork)
 # Simulation results for each sample size (500, 1000, 3600)
   # must already be generated using main_alt_ss_drs_train_pct.R
 
-# Set working directory
-setwd("/Users/haedi/Library/CloudStorage/Box-Box/Repos/DRS-HTE-RCT")
+#Set WD
+#setwd()
 
 
 # Read in OPB REsults

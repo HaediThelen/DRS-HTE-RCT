@@ -12,7 +12,8 @@ library(ggpubr)
 # Results for each trial settings (base_case and a-m) must already be generated
 # using main_quantile_approach.R and stored in the results folder.
 
-setwd("/Users/haedi/Library/CloudStorage/Box-Box/Repos/DRS-HTE-RCT")
+#Set WD
+#setwd()
 
 # Summary Plots
 plot_OPB <- function(data_list, x_variable, plot_titles = NULL, x_lab) {

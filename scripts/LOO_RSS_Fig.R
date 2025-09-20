@@ -10,8 +10,8 @@ library(patchwork)
 # using main_analysis.R, LOO.R and repeated_SS.R scripts, respectively.
 
 
-# Set working directory
-setwd("/Users/haedi/Library/CloudStorage/Box-Box/Repos/DRS-HTE-RCT")
+#Set WD
+#setwd()
 
 # Load the SS results
 SS_TxSc1 <- read.csv("./results/main_analysis/base_case/base_case_TxSc1.csv")

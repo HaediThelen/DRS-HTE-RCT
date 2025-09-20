@@ -11,8 +11,8 @@ library(ggpubr)
 # Results for each trial settings (base_case and a-n) must already be generated
   # using main_analysis.R
 
-# Set working directory
-setwd("/Users/haedi/Library/CloudStorage/Box-Box/Repos/DRS-HTE-RCT")
+#Set WD
+#setwd()
 
 # Check for trends plots results directory
 if (!dir.exists("./results/summary/")) { #ensure results folder exists locally

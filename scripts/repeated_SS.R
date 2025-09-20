@@ -9,7 +9,7 @@ library(scales)
 
 
 #Set WD
-setwd("/Users/haedi/Library/CloudStorage/Box-Box/Repos/DRS-HTE-RCT")
+#setwd()
 
 source("./functions/gen_pop_cf.R")
 source("./functions/rd_function.R")
