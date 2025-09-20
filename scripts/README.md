@@ -11,7 +11,7 @@ Results are saved locally under the `results/` directory. Make sure to run the s
 - **`main_analysis.R`**  
   Run this script first to generate data for the base case and all trial settings (`a`–`n`) described in the supplement (defined in `trial_settings.R`).  
   - Output: Results saved in `results/`.  
-  - The **base_case** scenario generates **Figure 2**.  
+  - The base_case scenario generates **Figure 2**.  
 
 ---
 
@@ -25,10 +25,10 @@ Results are saved locally under the `results/` directory. Make sure to run the s
 
 ## Step 3: Optimizing the split-sample (RSS) method
 
-### 3a. Varying % of controls used to train the DRS model
+### 3a. Varying percent of controls used to train the DRS model
 
 - **`main_alt_ss_drs_train_pct.R`**  
-  Run for trial sizes of **500**, **1,000**, and **3,600 (base case)**.  
+  Run for trial sizes of 500, 1,000, and 3,600 (base case).  
   Store results.  
 
 - **`alt_ss_train_pct_summary_plot.R`**  
@@ -38,7 +38,7 @@ Results are saved locally under the `results/` directory. Make sure to run the s
 
 - **`LOO.R`** and **`repeated_SS.R`**  
   Run both and store results.  
-  -  **Note**: `LOO.R` is slow — ~15 minutes per treatment effect scenario using 10 cores on a MacBook Pro (M1, 32 GB RAM). Runtime will vary with hardware.  
+  -  Note: `LOO.R` is slow — ~15 minutes per treatment effect scenario using 10 cores on a MacBook Pro (M1, 32 GB RAM). Runtime will vary with hardware.  
 
 - **`LOO_RSS_Fig.R`**  
   Uses stored results to generate **Figure 5**.  
