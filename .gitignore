@@ -14,7 +14,10 @@ temp/
 
 .DS_Store
 
-
+# renv cache folders
+renv/library/
+renv/staging/
+renv/python/
 
 # Session Data files
 .RData
