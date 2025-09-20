@@ -15,6 +15,7 @@ temp/
 .DS_Store
 
 # renv cache folders
+Renv/
 renv/library/
 renv/staging/
 renv/python/
