@@ -123,7 +123,7 @@ simulation_function <- function(data, outcome, covs, n_sim, n_sample_cx, n_sampl
 }
 
 # Main simulation function, parallel (simulate once and parallel function)
-simulate_once <- function(data, outcome, covs, n_sample_cx, n_sample_tx, obj_strata_cuts) {
+simulate_once <- function(data, outcome, covs, n_sample_cx, n_sample_tx, obj_strata_cuts, incl_se = FALSE) {
   # Create ID
   data$ID <- 1:nrow(data)
   
@@ -171,6 +171,14 @@ simulate_once <- function(data, outcome, covs, n_sample_cx, n_sample_tx, obj_str
   rd_DRS_CO_sampled_data <- rd_function(sampled_data, "DRS_CO_strata", treatment = "A", outcome = "Y")
   rd_DRS_SS_sampled_data_predict <- rd_function(sampled_data_predict, "DRS_SS_strata", treatment = "A", outcome = "Y")
   
+  # If incl_se = TRUE, get Standard Errors for RD estimates
+  if (incl_se == TRUE) {
+    se_rd_DRS_FS_sampled_data <- se_rd_function(sampled_data, "DRS_FS_strata", treatment = "A", outcome = "Y")
+    se_rd_DRS_CO_sampled_data <- se_rd_function(sampled_data, "DRS_CO_strata", treatment = "A", outcome = "Y")
+    se_rd_DRS_SS_sampled_data_predict <- se_rd_function(sampled_data_predict, "DRS_SS_strata", treatment = "A", outcome = "Y")
+  }
+  
+  
   # Get AUCs
   auc_DRS_FS <- auc(sampled_data$Y, sampled_data$DRS_FS)[1]
   auc_DRS_CO <- auc(sampled_data$Y, sampled_data$DRS_CO)[1]
@@ -183,7 +191,7 @@ simulate_once <- function(data, outcome, covs, n_sample_cx, n_sample_tx, obj_str
   ###
   
   # Combine results into a row
-  data.frame(
+ results <- data.frame(
     DRS_FS_strata1_sampled = rd_DRS_FS_sampled_data[1], 
     DRS_FS_strata2_sampled = rd_DRS_FS_sampled_data[2],
     DRS_FS_strata3_sampled = rd_DRS_FS_sampled_data[3], 
@@ -203,9 +211,28 @@ simulate_once <- function(data, outcome, covs, n_sample_cx, n_sample_tx, obj_str
     AUC_DRS_CO = auc_DRS_CO,
     AUC_DRS_SS = auc_DRS_SS
   )
+  
+  # Add SE columns if requested
+  if (incl_se) {
+    results$SE_DRS_FS_strata1_sampled <- se_rd_DRS_FS_sampled_data[1]
+    results$SE_DRS_FS_strata2_sampled <- se_rd_DRS_FS_sampled_data[2]
+    results$SE_DRS_FS_strata3_sampled <- se_rd_DRS_FS_sampled_data[3]
+    results$SE_DRS_FS_strata4_sampled <- se_rd_DRS_FS_sampled_data[4]
+    
+    results$SE_DRS_CO_strata1_sampled <- se_rd_DRS_CO_sampled_data[1]
+    results$SE_DRS_CO_strata2_sampled <- se_rd_DRS_CO_sampled_data[2]
+    results$SE_DRS_CO_strata3_sampled <- se_rd_DRS_CO_sampled_data[3]
+    results$SE_DRS_CO_strata4_sampled <- se_rd_DRS_CO_sampled_data[4]
+    
+    results$SE_DRS_SS_strata1_sampled <- se_rd_DRS_SS_sampled_data_predict[1]
+    results$SE_DRS_SS_strata2_sampled <- se_rd_DRS_SS_sampled_data_predict[2]
+    results$SE_DRS_SS_strata3_sampled <- se_rd_DRS_SS_sampled_data_predict[3]
+    results$SE_DRS_SS_strata4_sampled <- se_rd_DRS_SS_sampled_data_predict[4]
+  }
+    return(results)
 }
 
-simulation_function_parallel <- function(data, outcome, covs, n_sim, n_sample_cx, n_sample_tx, true_risk_strata, obj_strata_cuts) {
+simulation_function_parallel <- function(data, outcome, covs, n_sim, n_sample_cx, n_sample_tx, true_risk_strata, obj_strata_cuts, incl_se = FALSE) {
   
   # Set up parallel backend
   set.seed(12345)
@@ -213,7 +240,7 @@ simulation_function_parallel <- function(data, outcome, covs, n_sim, n_sample_cx
   
   # Use foreach with reproducible random numbers
   rd_list <- foreach(i = 1:n_sim, .combine = rbind, .packages = c("dplyr")) %dorng% {
-    simulate_once(data, outcome, covs, n_sample_cx, n_sample_tx, obj_strata_cuts)
+    simulate_once(data, outcome, covs, n_sample_cx, n_sample_tx, obj_strata_cuts, incl_se)
   }
   
   # Add true risk differences

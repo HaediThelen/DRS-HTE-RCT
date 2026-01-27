@@ -18,6 +18,7 @@ source("./functions/data_summary_function.R")
 source("./functions/rd_function.R")
 source("./functions/simulation_functions.R")
 source("./functions/results_plots.R")
+source("./functions/se_rd_function.R")
 
 ## Treatment Scenarios explored in all trial settings
 # 1. Generate data for treatment scenarios
@@ -34,7 +35,7 @@ source("./functions/results_plots.R")
 # "j_ratio_4to1"   "k_auc_0.70"    "l_auc_0.75"     "m_auc_0.80"     "n_auc_0.85" 
 
 
-current_trial <- all_trial_settings[all_trial_settings$trial_setting == "n_auc_0.85",]
+current_trial <- all_trial_settings[all_trial_settings$trial_setting == "base_case",]
 
 trial_setting <- current_trial$trial_setting
 file_path <- current_trial$file_path
@@ -146,12 +147,22 @@ n_sim <- current_trial$n_sim
 n_sample_cx <- current_trial$n_sample_cx
 n_sample_tx <- current_trial$n_sample_tx
 
-TxSc1 <- simulation_function_parallel(data_TxSc1, "Y", covs, n_sim, n_sample_cx, n_sample_tx, true_risk_strata = "objective_strata", obj_strata_cuts = obj_strata_cuts)
-TxSc2 <- simulation_function_parallel(data_TxSc2, "Y", covs, n_sim, n_sample_cx, n_sample_tx, true_risk_strata = "objective_strata", obj_strata_cuts = obj_strata_cuts)
-TxSc3 <- simulation_function_parallel(data_TxSc3, "Y", covs, n_sim, n_sample_cx, n_sample_tx, true_risk_strata = "objective_strata", obj_strata_cuts = obj_strata_cuts)
-TxSc4 <- simulation_function_parallel(data_TxSc4, "Y", covs, n_sim, n_sample_cx, n_sample_tx, true_risk_strata = "objective_strata", obj_strata_cuts = obj_strata_cuts)
-TxSc5 <- simulation_function_parallel(data_TxSc5, "Y", covs, n_sim, n_sample_cx, n_sample_tx, true_risk_strata = "objective_strata", obj_strata_cuts = obj_strata_cuts)
+# TxSc1 <- simulation_function_parallel(data_TxSc1, "Y", covs, n_sim, n_sample_cx, n_sample_tx, true_risk_strata = "objective_strata", obj_strata_cuts = obj_strata_cuts)
+# TxSc2 <- simulation_function_parallel(data_TxSc2, "Y", covs, n_sim, n_sample_cx, n_sample_tx, true_risk_strata = "objective_strata", obj_strata_cuts = obj_strata_cuts)
+# TxSc3 <- simulation_function_parallel(data_TxSc3, "Y", covs, n_sim, n_sample_cx, n_sample_tx, true_risk_strata = "objective_strata", obj_strata_cuts = obj_strata_cuts)
+# TxSc4 <- simulation_function_parallel(data_TxSc4, "Y", covs, n_sim, n_sample_cx, n_sample_tx, true_risk_strata = "objective_strata", obj_strata_cuts = obj_strata_cuts)
+# TxSc5 <- simulation_function_parallel(data_TxSc5, "Y", covs, n_sim, n_sample_cx, n_sample_tx, true_risk_strata = "objective_strata", obj_strata_cuts = obj_strata_cuts)
 
+TxSc1 <- simulation_function_parallel(data_TxSc1, "Y", covs, n_sim, n_sample_cx, n_sample_tx, 
+                                      true_risk_strata = "objective_strata", obj_strata_cuts = obj_strata_cuts, incl_se = TRUE)
+TxSc2 <- simulation_function_parallel(data_TxSc2, "Y", covs, n_sim, n_sample_cx, n_sample_tx, 
+                                      true_risk_strata = "objective_strata", obj_strata_cuts = obj_strata_cuts, incl_se = TRUE)
+TxSc3 <- simulation_function_parallel(data_TxSc3, "Y", covs, n_sim, n_sample_cx, n_sample_tx, 
+                                      true_risk_strata = "objective_strata", obj_strata_cuts = obj_strata_cuts, incl_se = TRUE)
+TxSc4 <- simulation_function_parallel(data_TxSc4, "Y", covs, n_sim, n_sample_cx, n_sample_tx, 
+                                      true_risk_strata = "objective_strata", obj_strata_cuts = obj_strata_cuts, incl_se = TRUE)
+TxSc5 <- simulation_function_parallel(data_TxSc5, "Y", covs, n_sim, n_sample_cx, n_sample_tx, 
+                                      true_risk_strata = "objective_strata", obj_strata_cuts = obj_strata_cuts, incl_se = TRUE)
 
 # # Save simulation results as csv
 # write.csv(TxSc1, paste0(file_path, "/", trial_setting, "_TxSc1.csv"), row.names = FALSE)
