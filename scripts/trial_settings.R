@@ -284,13 +284,31 @@ n_auc_0.85 <- data.frame(
   n_sample_tx = 1800
 )
 
+#Base Case OR
+base_case_or <- data.frame(
+  trial_setting = "base_case_or",
+  file_path = "./results/main_analysis/base_case_or",
+  cov_ORs_cx = I(list(c(1, 1, 1, 1.2, 1.2, 1.2, 1.5, 1.5, 1.5, 2, 2, 2))),
+  cov_ORs_tx = I(list(c(1, 1, 1, 1.2, 1.2, 1.2, 1.5, 1.5, 1.5, 2, 2, 2))),
+  n = 1000000,
+  covs_n = 12,
+  cov_prev = 0.2,
+  cx_intercept = -1.9,
+  tx_intercept = -1.9,
+  covs = I(list(c("X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8", "X9", "X10", "X11", "X12"))),
+  obj_strata_cuts =  I(list(c(-Inf, 0.178, 0.231, 0.311, Inf))),
+  n_sim = 500,
+  n_sample_cx = 1800,
+  n_sample_tx = 1800
+)
+
+
 all_trial_settings <- rbind(trial_settings, base_case, a_smplsz500, b_smplsz1000, 
                             c_smplsz5000, D_smplsz10000, e_outcome_0.15,
                             f_outcome_0.05, g_outcome_0.5, h_ratio_2to1, 
                             i_ratio_3to1, j_ratio_4to1, k_auc_0.70, 
-                            l_auc_0.75, m_auc_0.80, n_auc_0.85)
-
-
+                            l_auc_0.75, m_auc_0.80, n_auc_0.85,
+                            base_case_or)
 
 
 

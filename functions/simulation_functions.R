@@ -654,3 +654,120 @@ simulation_function_LOO_parallel <- function(data, outcome, covs, n_sim, n_sampl
   
   return(rd_list)
 }
+
+
+# OR simulation
+# Main simulation function, parallel (simulate once and parallel function) calculating OR instead of RD
+simulate_once_or <- function(data, outcome, covs, n_sample_cx, n_sample_tx, obj_strata_cuts) {
+  # Create ID
+  data$ID <- 1:nrow(data)
+  
+  # Randomly draw n_sample_cx controls (treatment A = 0)
+  sampled_data_cx <- data %>% 
+    filter(A == 0) %>% 
+    sample_n(n_sample_cx, replace = FALSE)
+  
+  # Randomly draw n_sample_ctx controls (treatment A = 1)
+  sampled_data_tx <- data %>% 
+    filter(A == 1) %>% 
+    sample_n(n_sample_tx, replace = FALSE)
+  
+  # Combine sampled treated and controls
+  sampled_data <- rbind(sampled_data_cx, sampled_data_tx)
+  
+  formula <- reformulate(covs, response = outcome)
+  
+  # Controls Only Method
+  DRM_CO <- glm(formula, data = filter(sampled_data, A == 0), family = "binomial")
+  
+  # Full Sample Method
+  DRM_FS <- glm(formula, data = sampled_data, family = "binomial")
+  
+  # Split Sample Method
+  sample_data_cx <- filter(sampled_data, A == 0)
+  n_sample_cx <- nrow(sample_data_cx)
+  sampled_data_cx_train <- sample_data_cx %>% sample_n(n_sample_cx / 2, replace = FALSE)
+  sampled_data_predict <- sampled_data %>% anti_join(sampled_data_cx_train, by = "ID")
+  
+  DRM_SS <- glm(formula, data = sampled_data_cx_train, family = "binomial")
+  
+  # Predicted risks
+  sampled_data$DRS_FS <- predict(DRM_FS, newdata = sampled_data, type = "response")
+  sampled_data$DRS_CO <- predict(DRM_CO, newdata = sampled_data, type = "response")
+  sampled_data_predict$DRS_SS <- predict(DRM_SS, newdata = sampled_data_predict, type = "response")
+  
+  # Use the full sampled_data for all stratification and risk difference calculations
+  sampled_data$DRS_FS_strata <- stratify_function(sampled_data, "DRS_FS", 4, cuts = obj_strata_cuts)
+  sampled_data$DRS_CO_strata <- stratify_function(sampled_data, "DRS_CO", 4, cuts = obj_strata_cuts)
+  sampled_data_predict$DRS_SS_strata <- stratify_function(sampled_data_predict, "DRS_SS", 4, cuts = obj_strata_cuts)
+  
+  # OR using full sampled_data
+  or_DRS_FS_sampled_data <- or_function(sampled_data, "DRS_FS_strata", treatment = "A", outcome = "Y")
+  or_DRS_CO_sampled_data <- or_function(sampled_data, "DRS_CO_strata", treatment = "A", outcome = "Y")
+  or_DRS_SS_sampled_data_predict <- or_function(sampled_data_predict, "DRS_SS_strata", treatment = "A", outcome = "Y")
+  
+  ###
+  # if any value in or_DRS_CO_sampled_data = NaN or na then print "NaN or NA"
+  print(any(is.na(or_DRS_CO_sampled_data)))
+  
+  ###
+  
+  # Combine results into a row
+  results <- data.frame(
+    DRS_FS_strata1_sampled = or_DRS_FS_sampled_data[1], 
+    DRS_FS_strata2_sampled = or_DRS_FS_sampled_data[2],
+    DRS_FS_strata3_sampled = or_DRS_FS_sampled_data[3], 
+    DRS_FS_strata4_sampled = or_DRS_FS_sampled_data[4],
+    
+    DRS_CO_strata1_sampled = or_DRS_CO_sampled_data[1], 
+    DRS_CO_strata2_sampled = or_DRS_CO_sampled_data[2],
+    DRS_CO_strata3_sampled = or_DRS_CO_sampled_data[3], 
+    DRS_CO_strata4_sampled = or_DRS_CO_sampled_data[4],
+    
+    DRS_SS_strata1_sampled = or_DRS_SS_sampled_data_predict[1], 
+    DRS_SS_strata2_sampled = or_DRS_SS_sampled_data_predict[2],
+    DRS_SS_strata3_sampled = or_DRS_SS_sampled_data_predict[3], 
+    DRS_SS_strata4_sampled = or_DRS_SS_sampled_data_predict[4]
+  )
+  
+  # Transform ORs to log(OR)
+  results <- results %>% mutate(across(everything(), log))
+  # Rename columns
+  colnames(results) <- gsub("_sampled", "_sampled_log_or", colnames(results))
+  
+  return(results)
+}
+
+simulation_function_parallel_or <- function(data, outcome, covs, n_sim, n_sample_cx, n_sample_tx, true_risk_strata, obj_strata_cuts) {
+  
+  # Set up parallel backend
+  set.seed(12345)
+  registerDoParallel(cores = detectCores() - 1)
+  
+  # Use foreach with reproducible random numbers
+  log_or_list <- foreach(i = 1:n_sim, .combine = rbind, .packages = c("dplyr")) %dorng% {
+    simulate_once_or(data, outcome, covs, n_sample_cx, n_sample_tx, obj_strata_cuts)
+  }
+  
+  # Add true risk differences
+  #rd_true_data <- rd_function(data, true_risk_strata, treatment = "A", outcome = "Y")#conditional RD
+  # use counterfactual outcomes to calculate true risk
+  or_true_data <- c(
+    or_strata1 = (mean(data[data$objective_strata == 1,]$Y1) / (1 - mean(data[data$objective_strata == 1,]$Y1))) / 
+      (mean(data[data$objective_strata == 1,]$Y0) / (1 - mean(data[data$objective_strata == 1,]$Y0))),
+    or_strata2 = (mean(data[data$objective_strata == 2,]$Y1) / (1 - mean(data[data$objective_strata == 2,]$Y1))) / 
+      (mean(data[data$objective_strata == 2,]$Y0) / (1 - mean(data[data$objective_strata == 2,]$Y0))),
+    or_strata3 = (mean(data[data$objective_strata == 3,]$Y1) / (1 - mean(data[data$objective_strata == 3,]$Y1))) / 
+      (mean(data[data$objective_strata == 3,]$Y0) / (1 - mean(data[data$objective_strata == 3,]$Y0))),
+    or_strata4 = (mean(data[data$objective_strata == 4,]$Y1) / (1 - mean(data[data$objective_strata == 4,]$Y1))) / 
+      (mean(data[data$objective_strata == 4,]$Y0) / (1 - mean(data[data$objective_strata == 4,]$Y0))))
+  log_or_true_data <- log(or_true_data)
+  
+  log_or_list$True_log_or_strata1 <- log_or_true_data[1]
+  log_or_list$True_log_or_strata2 <- log_or_true_data[2]
+  log_or_list$True_log_or_strata3 <- log_or_true_data[3]
+  log_or_list$True_log_or_strata4 <- log_or_true_data[4]
+  
+  return(log_or_list)
+}
+
